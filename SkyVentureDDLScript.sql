@@ -1,89 +1,113 @@
+-- Disable foreign key checks to prevent errors during table drops
 SET FOREIGN_KEY_CHECKS = 0;
-DROP TABLE  IF EXISTS      Plane            ;
-DROP TABLE  IF EXISTS      Seat          ;
-DROP TABLE  IF EXISTS      Seat_Status          ;
-DROP TABLE  IF EXISTS      Seat_Assignment         ;
-DROP TABLE  IF EXISTS      Itinerary ;
-DROP TABLE  IF EXISTS      Ticket  ;
-DROP TABLE  IF EXISTS      Passenger           ;
-DROP TABLE IF EXISTS		Baggage 	;
+
+-- Drop table if it exists and any dependent objects or constraints
+DROP TABLE IF EXISTS Plane CASCADE;
+DROP TABLE IF EXISTS Seat CASCADE;
+DROP TABLE IF EXISTS Seat_Status CASCADE;
+DROP TABLE IF EXISTS Seat_Assignment CASCADE;
+DROP TABLE IF EXISTS Itinerary CASCADE;
+DROP TABLE IF EXISTS Ticket CASCADE;
+DROP TABLE IF EXISTS Passenger CASCADE;
+DROP TABLE IF EXISTS Baggage CASCADE;
+
+-- Re-enable foreign key checks after the drop operations
+SET FOREIGN_KEY_CHECKS = 1;
+
 
 -- Define the tables
+-- Create Plane Table
+CREATE TABLE Plane (
+    Plane_ID CHAR(5) PRIMARY KEY,     -- Changed to CHAR
+    Capacity SMALLINT NOT NULL,        -- Use SMALLINT for smaller values
+    Age TINYINT NOT NULL,              -- Use TINYINT for age (0-255)
+    Mileage INT NOT NULL                -- INT is suitable for mileage
+);
 
--- Plane Table
-CREATE TABLE Plane
-( 	Plane_ID varchar(5),
-	Capacity int(5),
-	Age int(2),
-	Mileage int(10)
+-- Create Seat Table
+CREATE TABLE Seat (
+    Seat_ID CHAR(8) PRIMARY KEY,       -- Changed to CHAR
+    Plane_ID CHAR(5),                  -- Changed to CHAR
+    FOREIGN KEY (Plane_ID) REFERENCES Plane(Plane_ID) ON DELETE SET NULL
 );
--- Seat Table
-Create Table Seat
-(	Seat_ID varchar(8),
-	Plane_ID varchar (5)
-	);
--- Seat Status Table
-CREATE TABLE Seat_Status
-( 	Seat_A_ID varchar (12), -- PK
-	Seat_ID varchar(8), -- FK
-	Seat_Location varchar(4), 
-	Status char(10)
+
+-- Create Seat Status Table
+CREATE TABLE Seat_Status (
+    Seat_A_ID CHAR(12) PRIMARY KEY,    -- Changed to CHAR
+    Seat_ID CHAR(8),                    -- Changed to CHAR
+    Seat_Location CHAR(4) NOT NULL,     -- CHAR(4) is fine for locations like "A1"
+    Status ENUM('Available', 'Occupied', 'Reserved') NOT NULL,  -- Use ENUM for fixed set of values
+    FOREIGN KEY (Seat_ID) REFERENCES Seat(Seat_ID)
 );
--- Seat Assignment Table
-CREATE TABLE Seat_Assignment
-( 	Seat_A_ID varchar(13), -- PK Seat_ID+Ticket_ID
-	Boarding_Rank varchar(15)
+
+-- Create Seat Assignment Table
+CREATE TABLE Seat_Assignment (
+    Seat_A_ID CHAR(13) PRIMARY KEY,    
+    Boarding_Rank TINYINT NOT NULL,      
+    FOREIGN KEY (Seat_A_ID) REFERENCES Seat_Status(Seat_A_ID)
 );
--- Ticket Table
-CREATE TABLE Ticket
-( 	Ticket_ID varchar(5), -- PK
-	Itinerary_ID varchar(5), -- FK
-	Seat_A_ID varchar(13), -- FK
-	Passenger_ID varchar(5), -- FK 
-	Baggage_ID varchar (5), -- FK
-	Status char(20)
+
+-- Create Itinerary Table
+CREATE TABLE Itinerary (
+    Itinerary_ID CHAR(5) PRIMARY KEY,   
+    Start_Destination VARCHAR(50) NOT NULL,  
+    End_Destination VARCHAR(50) NOT NULL,    
+    Depart_Date DATE NOT NULL,
+    Arrive_Date DATE NOT NULL,
+    Gate CHAR(6),                     
+    Arrival_Time TIME NOT NULL
 );
--- Passenger Table
-CREATE TABLE Passenger
-( 	Passenger_ID varchar(5),
-	First_name char(20) NOT NULL,
-	Last_name char(20) NOT NULL,
-	DOB date,
-	Street varchar(30),
-	City char(20),
-	State char(20),
-	Zipcode varchar(5)
+
+-- Create Ticket Table
+CREATE TABLE Ticket (
+    Ticket_ID CHAR(5) PRIMARY KEY,       
+    Itinerary_ID CHAR(5),                
+    Seat_A_ID CHAR(13),                  
+    Passenger_ID CHAR(5),               
+    Baggage_ID CHAR(5),                 
+    Status ENUM('Active', 'Cancelled', 'Completed') DEFAULT 'Active',
+    FOREIGN KEY (Itinerary_ID) REFERENCES Itinerary(Itinerary_ID),
+    FOREIGN KEY (Seat_A_ID) REFERENCES Seat_Assignment(Seat_A_ID),
+    FOREIGN KEY (Passenger_ID) REFERENCES Passenger(Passenger_ID),
+    FOREIGN KEY (Baggage_ID) REFERENCES Baggage(Baggage_ID)
 );
--- Itinerary Table
-CREATE TABLE Itinerary
-( 	Itinerary_ID varchar(5),
-	Start_Destination char (20),
-	End_Destination char (20),
-	Depart_date date,
-	Arrive_date date,
-	Gate varchar(8),
-	Arrival_time time
+
+-- Create Passenger Table
+CREATE TABLE Passenger (
+    Passenger_ID CHAR(5) PRIMARY KEY,    
+    First_Name VARCHAR(30) NOT NULL,      
+    Last_Name VARCHAR(30) NOT NULL,       
+    DOB DATE NOT NULL,
+    Street VARCHAR(50),                  
+    City VARCHAR(30),                      
+    State CHAR(2),                         
+    Zipcode CHAR(5)                       -- fixed-length ZIP codes
 );
--- Baggage Table
-CREATE TABLE Baggage
-( 	Baggage_ID varchar(5),
-	Ticket_ID varchar(5),
-	Weight int(4)
+
+-- Create Baggage Table
+CREATE TABLE Baggage (
+    Baggage_ID CHAR(5) PRIMARY KEY,     
+    Ticket_ID CHAR(5),                    
+    Weight SMALLINT NOT NULL,              -- Use SMALLINT for weight (up to 65,535)
+    FOREIGN KEY (Ticket_ID) REFERENCES Ticket(Ticket_ID)
 );
--- Load in Data to tables
+
+
+-- Load data into tables
 -- Plane data
 INSERT INTO Plane (Plane_ID, Capacity, Age, Mileage)
- VALUES 
-		(14471, 850, 11, 50000),
-		(15471, 450, 15, 200000),
-		(11471, 200, 25, 3000000),
-		(12471, 350, 17, 230000),
-		(1371, 500, 12, 4000000),
-		(16471, 230, 12, 2476500),
-		(17471, 150, 8, 200000);
+VALUES 
+    ('14471', 850, 11, 50000),
+    ('15471', 450, 15, 200000),
+    ('11471', 200, 25, 3000000),
+    ('12471', 350, 17, 230000),
+    ('1371', 500, 12, 4000000),
+    ('16471', 230, 12, 2476500),
+    ('17471', 150, 8, 200000);
+
 -- Itinerary data
 INSERT INTO Itinerary (Itinerary_ID, Start_Destination, End_Destination, Depart_date, Arrive_date, Gate, Arrival_time)
- VALUES 
+VALUES 
 (110, 'New York', 'Los Angeles', '2023-11-01', '2023-11-01', 'Gate A', '11:00:00'),
 (111, 'Los Angeles', 'Chicago', '2023-11-12', '2023-11-13', 'Gate B', '13:30:00'),
 (112, 'Chicago', 'Atlanta', '2023-11-13', '2023-11-14', 'Gate C', '20:15:00'),
@@ -97,8 +121,8 @@ INSERT INTO Itinerary (Itinerary_ID, Start_Destination, End_Destination, Depart_
 
 -- Baggage data
 INSERT INTO Baggage (Baggage_ID, Ticket_ID, Weight)
- VALUES 
- (00001, 10001, 25),
+VALUES 
+(00001, 10001, 25),
 (00002, 10002, 30),
 (00003, 10003, 15),
 (00004, 10004, 22),
@@ -141,7 +165,7 @@ INSERT INTO Baggage (Baggage_ID, Ticket_ID, Weight)
 
 -- Passenger data
 INSERT INTO Passenger (Passenger_ID, First_name, Last_name, DOB, Street, City, State, Zipcode)
- VALUES 
+VALUES 
 (12345, 'John', 'Doe', '1990-05-15', '123 Main Rd', 'New York', 'NY', '10001'),
 (23456, 'Jane', 'Smith', '1985-08-20', '456 Oak St', 'Los Angeles', 'CA', '90001'),
 (34567, 'Bob', 'Johnson', '1978-03-10', '789 Elm Ave', 'Chicago', 'IL', '60601'),
@@ -186,7 +210,7 @@ INSERT INTO Passenger (Passenger_ID, First_name, Last_name, DOB, Street, City, S
 
 -- Ticket data
 INSERT INTO Ticket (Ticket_ID, Itinerary_ID, Seat_A_ID, Passenger_ID, Status)
- VALUES
+VALUES
 (10001, 110, '14471A110001', 12345, 'Checked-In'),
 (10002, 111, '14471B210002', 23456, 'Checked-In'),
 (10003, 112, '14471C310003', 34567, 'Checked-In'),
@@ -359,129 +383,3 @@ VALUES
 ('15471E3',15471),
 ('15471F3',15471),
 ('15471A4',15471);
-
-
--- Define Primary Keys
-
--- Plane PK
-CREATE UNIQUE INDEX Plane_pk
-ON Plane (Plane_ID);
-
-ALTER TABLE Plane
-ADD (CONSTRAINT Plane_pk
-		PRIMARY KEY (Plane_ID)
-	);
--- Seat PK
-CREATE UNIQUE INDEX seat_pk
- ON Seat (Seat_ID);
-ALTER TABLE Seat
-ADD (CONSTRAINT seat_pk
-		PRIMARY KEY (Seat_ID)
-	);
--- Seat Status PK
-CREATE UNIQUE INDEX Seat_Status_pk
-ON  Seat_Status (Seat_ID, Seat_A_ID);
-
-ALTER TABLE Seat_Status
-ADD (CONSTRAINT Seat_Status_pk
-		PRIMARY KEY (Seat_ID, Seat_A_ID)
-	);
--- Seat Assignment PK
-CREATE UNIQUE INDEX Seat_Assignment_pk
-ON Seat_Assignment (Seat_A_ID);
-
-ALTER TABLE Seat_Assignment
-ADD (CONSTRAINT Seat_Assignment_pk
-		PRIMARY KEY (Seat_A_ID)
-	);
--- Ticket PK
-CREATE UNIQUE INDEX Ticket_pk
-ON Ticket (Ticket_ID);
-
-ALTER TABLE Ticket
-ADD (CONSTRAINT Ticket_pk
-		PRIMARY KEY (Ticket_ID));
--- Passenger PK
-	CREATE UNIQUE INDEX Passenger_pk
-ON Passenger (Passenger_ID);
-
-ALTER TABLE Passenger
-ADD (CONSTRAINT Passenger_pk
-		PRIMARY KEY (Passenger_ID)
-	);
--- Itinerary PK
-CREATE UNIQUE INDEX Itinerary_pk
-ON Itinerary (Itinerary_ID);
-
-ALTER TABLE Itinerary
-ADD (CONSTRAINT Itinerary_pk
-		PRIMARY KEY (Itinerary_ID)
-	);
--- Baggage PK
-CREATE UNIQUE INDEX Baggage_pk
-ON Baggage (Baggage_ID);
-
-ALTER TABLE Baggage
-ADD (CONSTRAINT Baggage_pk
-		PRIMARY KEY (Baggage_ID));
-
-
--- Define Foreign Keys (if any)
-	
--- Seat FK
-	ALTER TABLE Seat 
-ADD ( CONSTRAINT Seat_Plane_fk 
-      FOREIGN KEY (Plane_ID) 
-      REFERENCES Plane (Plane_ID)
-     ON DELETE SET NULL
-    ) ;
-
-   
--- Seat Status FK
-ALTER TABLE Seat_Status 
-ADD ( CONSTRAINT SeatStatus_Seat_fk 
-      FOREIGN KEY (Seat_ID) 
-      REFERENCES Seat (Seat_ID) 
-      -- ON DELETE SET NULL 
-    ) ;
-   ALTER TABLE Seat_Status 
-ADD ( CONSTRAINT SeatStatus_Assignment_fk 
-      FOREIGN KEY (Seat_A_ID) 
-      REFERENCES Seat_Assignment (Seat_A_ID) 
-      -- ON DELETE SET NULL 
-    ) ;
--- Seat Assignment FK
-   
--- Ticket FK
-ALTER TABLE Ticket
-ADD ( CONSTRAINT ticket_itinerary_fk 
-      FOREIGN KEY (Itinerary_ID) 
-      REFERENCES Itinerary(Itinerary_ID) );
-      -- ON DELETE SET NULL 
-ALTER TABLE Ticket
-ADD ( CONSTRAINT ticket_seat_fk 
-      FOREIGN KEY (Seat_A_ID) 
-      REFERENCES Seat_Assignment (Seat_A_ID) );
-      -- ON DELETE SET NULL 
-ALTER TABLE Ticket
-ADD ( CONSTRAINT ticket_passenger_fk 
-      FOREIGN KEY (Passenger_ID) 
-      REFERENCES Passenger(Passenger_ID) 
-      -- ON DELETE SET NULL 
-	);
-ALTER TABLE Ticket
-ADD ( CONSTRAINT ticket_baggage_fk 
-      FOREIGN KEY (Baggage_ID) 
-      REFERENCES Baggage (Baggage_ID) 
-      -- ON DELETE SET NULL 
-	);
--- Itinerary FK
-
--- Baggage FK
-ALTER TABLE Baggage
-ADD ( CONSTRAINT baggage_ticket_fk 
-      FOREIGN KEY (Ticket_ID) 
-      REFERENCES Ticket (Ticket_ID) 
-      -- ON DELETE SET NULL 
-	);
-
