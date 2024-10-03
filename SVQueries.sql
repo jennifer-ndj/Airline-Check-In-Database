@@ -9,8 +9,7 @@ ORDER BY p.First_name ASC;
 
 
 -- Age calculation & segmentation
-SELECT 
-    ROUND(DATEDIFF(CURDATE(), DOB) / 365) AS 'Age (yrs)',
+SELECT ROUND(DATEDIFF(CURDATE(), DOB) / 365) AS 'Age (yrs)',
     CASE 
         WHEN ROUND(DATEDIFF(CURDATE(), DOB) / 365) < 18 THEN 'Child/Teen'
         WHEN ROUND(DATEDIFF(CURDATE(), DOB) / 365) BETWEEN 18 AND 30 THEN 'Young Adult'
@@ -18,17 +17,13 @@ SELECT
         ELSE 'Senior'
     END AS "Age Group",
     COUNT(*) AS 'Count'
-FROM 
-    Passenger
-GROUP BY 
-    ROUND(DATEDIFF(CURDATE(), DOB) / 365), "Age Group"
+FROM Passenger
+GROUP BY ROUND(DATEDIFF(CURDATE(), DOB) / 365), "Age Group"
 UNION
-SELECT 
-    'Average' AS 'Age (yrs)', 
-    NULL AS "Age Group", -- Set to NULL for the average row
-    ROUND(AVG(DATEDIFF(CURDATE(), DOB) / 365)) AS 'Count'
-FROM 
-    Passenger;
+SELECT 'Average' AS 'Age (yrs)', 
+NULL AS "Age Group", -- Set to NULL for the average row
+	ROUND(AVG(DATEDIFF(CURDATE(), DOB) / 365)) AS 'Count'
+FROM Passenger;
 
 
 -- Number of unreserved seat:
@@ -48,7 +43,7 @@ GROUP BY t.Itinerary_ID;
 -- Baggage Type
 SELECT t.Itinerary_ID, b.Ticket_ID, b.Weight,
 CASE WHEN Weight > 40 THEN 'Check'
-         ELSE 'Carry-On'
+	ELSE 'Carry-On'
     END AS "Baggage Type"
 FROM Baggage b
 JOIN Ticket t
@@ -63,9 +58,6 @@ SELECT
     COUNT(CASE WHEN t.Status != 'Checked-In' THEN 1 END) AS Not_Checked_In_Count,
     COUNT(*) AS Total_Count,
     ROUND(COUNT(CASE WHEN t.Status = 'Checked-In' THEN 1 END) / COUNT(*) * 100, 2) AS Checked_In_Percentage
-FROM 
-    Seat_Assignment sa
-JOIN 
-    Ticket t ON sa.Seat_A_ID = t.Seat_A_ID
-GROUP BY 
-    sa.Boarding_Rank;
+FROM Seat_Assignment sa
+JOIN Ticket t ON sa.Seat_A_ID = t.Seat_A_ID
+GROUP BY sa.Boarding_Rank;
