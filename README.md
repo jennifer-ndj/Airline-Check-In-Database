@@ -24,5 +24,5 @@ To enhance operational efficiency and improve customer experience, SkyVenture ai
 ## Query Insights & Recommendations
 1. _50% of passengers are in the middle-age group_ → allows for strengthened marketing strategies based on use of distribution channels & enables for survey feedback to be analyzed by age group
 2. _60% seat reservation rate 24 hours before flight_ → identifies at-risk seats allowing us to manage & improve seat allocation for both passengers and the company. Indicates seat reservation rates and helps increase satisfaction rates
-3. _53% pre-check-in rate among economy class_ → provides visibility into regular check-in patterns & behaviors across boarding classes. Also helps indicate staffing level needs
+3. _53% pre-check-in rate among economy class_ → provides visibility into regular check-in patterns & behaviors across boarding classes, helping to indicate staffing level and resource needs
 
