@@ -1,14 +1,4 @@
--- Itinerary 113 24 hour Not-Checked In List
-SELECT p.First_name, p.Last_name, t.Passenger_ID
-FROM Ticket t
-JOIN Passenger p
-ON p.Passenger_ID = t.Passenger_ID 
-WHERE t.Status = 'Not Checked-In' AND
-	t.Itinerary_ID = 113
-ORDER BY p.First_name ASC;
-
-
--- Age calculation & segmentation
+-- Query 1:  Age calculation & segmentation
 SELECT ROUND(DATEDIFF(CURDATE(), DOB) / 365) AS 'Age (yrs)',
     CASE 
         WHEN ROUND(DATEDIFF(CURDATE(), DOB) / 365) < 18 THEN 'Child/Teen'
@@ -26,7 +16,7 @@ NULL AS "Age Group", -- Set to NULL for the average row
 FROM Passenger;
 
 
--- Number of unreserved seat:
+-- Query 2:  Number of unreserved seat:
 SELECT COUNT(DISTINCT ss.Seat_Location) AS 'Unreserved Seat Count', t.Itinerary_ID
 FROM Seat_Status ss
 JOIN Ticket t ON ss.Seat_A_ID = t.Seat_A_ID
@@ -40,7 +30,7 @@ WHERE
 GROUP BY t.Itinerary_ID;
 
 
--- Baggage Type
+-- Query 3:  Baggage Type
 SELECT t.Itinerary_ID, b.Ticket_ID, b.Weight,
 CASE WHEN Weight > 40 THEN 'Check'
 	ELSE 'Carry-On'
@@ -51,7 +41,7 @@ ON b.Ticket_ID = t.Ticket_ID
 GROUP BY t.Itinerary_ID, b.Ticket_ID, b.Weight;
 
 
--- Class & Ticket Status Distribution
+-- Query 4:  Class & Ticket Status Distribution
 SELECT 
     sa.Boarding_Rank,
     COUNT(CASE WHEN t.Status = 'Checked-In' THEN 1 END) AS Checked_In_Count,
@@ -61,3 +51,13 @@ SELECT
 FROM Seat_Assignment sa
 JOIN Ticket t ON sa.Seat_A_ID = t.Seat_A_ID
 GROUP BY sa.Boarding_Rank;
+
+
+-- Query 5:  Itinerary 113 24 hour Not-Checked In List
+SELECT p.First_name, p.Last_name, t.Passenger_ID
+FROM Ticket t
+JOIN Passenger p
+ON p.Passenger_ID = t.Passenger_ID 
+WHERE t.Status = 'Not Checked-In' AND
+	t.Itinerary_ID = 113
+ORDER BY p.First_name ASC;
