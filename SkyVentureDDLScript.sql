@@ -18,7 +18,7 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- Define the tables
 -- Create Plane Table
 CREATE TABLE Plane (
-    Plane_ID CHAR(5) PRIMARY KEY,     -- Changed to CHAR
+    Plane_ID CHAR(5) PRIMARY KEY,     
     Capacity SMALLINT NOT NULL,        -- Use SMALLINT for smaller values
     Age TINYINT NOT NULL,              -- Use TINYINT for age (0-255)
     Mileage INT NOT NULL                -- INT is suitable for mileage
@@ -26,16 +26,16 @@ CREATE TABLE Plane (
 
 -- Create Seat Table
 CREATE TABLE Seat (
-    Seat_ID CHAR(8) PRIMARY KEY,       -- Changed to CHAR
-    Plane_ID CHAR(5),                  -- Changed to CHAR
+    Seat_ID CHAR(8) PRIMARY KEY,       
+    Plane_ID CHAR(5),                 
     FOREIGN KEY (Plane_ID) REFERENCES Plane(Plane_ID) ON DELETE SET NULL
 );
 
 -- Create Seat Status Table
 CREATE TABLE Seat_Status (
-    Seat_A_ID CHAR(12) PRIMARY KEY,    -- Changed to CHAR
-    Seat_ID CHAR(8),                    -- Changed to CHAR
-    Seat_Location CHAR(4) NOT NULL,     -- CHAR(4) is fine for locations like "A1"
+    Seat_A_ID CHAR(12) PRIMARY KEY,   
+    Seat_ID CHAR(8),                   
+    Seat_Location CHAR(4) NOT NULL,     
     Status ENUM('Available', 'Occupied', 'Reserved') NOT NULL,  -- Use ENUM for fixed set of values
     FOREIGN KEY (Seat_ID) REFERENCES Seat(Seat_ID)
 );
@@ -80,8 +80,8 @@ CREATE TABLE Passenger (
     DOB DATE NOT NULL,
     Street VARCHAR(50),                  
     City VARCHAR(30),                      
-    State CHAR(2),                         
-    Zipcode CHAR(5)                       -- fixed-length ZIP codes
+    "State" CHAR(2),                         
+    Zipcode CHAR(5)                       
 );
 
 -- Create Baggage Table
