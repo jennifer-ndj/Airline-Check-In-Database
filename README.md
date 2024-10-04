@@ -1,4 +1,4 @@
-# SkyVenture Database Schema
+# SkyVenture Check-In Database Schema
 
 ## Background
 
