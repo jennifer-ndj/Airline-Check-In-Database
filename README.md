@@ -19,6 +19,7 @@ To enhance operational efficiency and improve customer experience, SkyVenture ai
 - **Mobile boarding passes:** Adds convenience, reduces paper waste, & speeds up boarding process
 - **Seat Selection & Upgrades:** Gives passengeres more control over their flight experience & offeres upsell opportunities
 - **Real-Time Passenger Analytics:** Enables data-driven decision-making, optimizes operations, and tailors service to better satisfy passengers
+<img width="1210" alt="image" src="https://github.com/user-attachments/assets/4078a22b-cfcc-444c-a352-76d2f02b601f">
 
 ## Query Insights & Recommendations
 1. _50% of passengers are in the middle-age group_ → allows for strengthened marketing strategies based on use of distribution channels & enables for survey feedback to be analyzed by age group
